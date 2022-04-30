@@ -1,0 +1,19 @@
+{
+    "email": "alex155r@stud.kea.dk",
+    "password": "alex123"
+}
+
+{
+    "email": "radu0195@stud.kea.dk",
+    "password": "radu123"
+}
+
+{
+    "email": "alek2686@stud.kea.dk",
+    "password": "minchev123"
+}
+
+{
+    "email": "test@stud.kea.dk",
+    "password": "test123"
+}
