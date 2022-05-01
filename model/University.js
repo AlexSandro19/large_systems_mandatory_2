@@ -1,17 +1,15 @@
 const mongoose = require('mongoose');
 
 const universitySchema = mongoose.Schema({
-    teachersID: [
+    teacherEmails: [
         {
-            type: mongoose.Types.ObjectId,
-            ref: "Teacher",
+            type: String,
             // require: true
         }
     ],
-    studentsID: [
+    studentEmails: [
         {
-            type: mongoose.Types.ObjectId,
-            ref: "Student",
+            type: String,
             // require: true
         }
     ],

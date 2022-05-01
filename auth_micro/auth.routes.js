@@ -10,6 +10,7 @@ const Student = require("../model/Student");
 const loginUrl = "http://localhost:5000/api/getStudent";
 const courseUrl = "http://localhost:5000/api/getCourse";
 const universityGeolocationsUrl = "http://localhost:5000/api/getUniversityGeolocations";
+const checkStudentInUniveristyUrl = "http://localhost:5000/api/checkStudentInUniveristy";
 
 const router = Router();
 
@@ -215,18 +216,32 @@ router.post(
                 .catch((error) => {
                     throw error.response;
                 });
+            const isStundentInUniveristy = await axios
+                .post(checkStudentInUniveristyUrl, req.body)
+                .then((response) => response.data)
+                .catch((error) => {
+                    throw error.response;
+                });
+
             console.log("candidate: ", candidate)
-            if (candidate) {
+            console.log("isStundentInUniveristy: ", isStundentInUniveristy)
+            if (!candidate && isStundentInUniveristy){
+                const hashedPassword = await bcrypt.hash(password, 12);
+                const student = new Student({ email, password: hashedPassword });
+                console.log("created student: ", student)
+                await student.save();
+    
+                return res.status(201).json({ message: "Student account created" });
+            }else if(candidate) {
                 return res
                     .status(400)
                     .json({ message: "Student with this email already exists" });
+            }else if(!isStundentInUniveristy){
+                return res
+                .status(400)
+                .json({ message: "This email doesn't belong to a student" });
             }
-            const hashedPassword = await bcrypt.hash(password, 12);
-            const student = new Student({ email, password: hashedPassword });
-            console.log("created student: ", student)
-            await student.save();
-
-            return res.status(201).json({ message: "Student account created" });
+           
         } catch (error) {
             return res.status(500).json({ message: "Something went wrong", error: error.message });
         }

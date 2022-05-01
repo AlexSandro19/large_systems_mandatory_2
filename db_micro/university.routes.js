@@ -87,6 +87,38 @@ router.post("/getUniversityGeolocations", async (req, res) => {
     }
 })
 
+router.post("/checkStudentInUniveristy", async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                errors: errors.array(),
+                message: "Invalid data while sending",
+            });
+
+        }
+        console.log("inside university.routes.js > checkStudentInUniveristy: ", req.body)
+        const { email } = req.body
+        let isStundentInUniveristy = false
+        const allUniversities = await University.find({});
+        console.log("allUniversities: ", allUniversities)
+        allUniversities.forEach(university => {
+            console.log("university.studentEmails: ", university.studentEmails)
+            university.studentEmails.forEach(studentEmail => {
+                if (studentEmail === email){
+                    isStundentInUniveristy = true;
+                }
+            })
+        })
+        console.log(`isStundentInUniveristy: ${isStundentInUniveristy}`);
+        return res.status(200).json(isStundentInUniveristy);
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({ error: error, message: error.message })
+
+    }
+})
+
 
 
 module.exports = router;
