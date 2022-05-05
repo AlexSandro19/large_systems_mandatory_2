@@ -20,25 +20,25 @@ const universitySchema = mongoose.Schema({
             // require: true
         }
     ],
-    emailSuffix:{
+    emailSuffix: {
         type: String,
         // require: true
     },
     geolocations: [
         {
-            geolocationId:{
+            geolocationId: {
                 type: mongoose.Types.ObjectId,
                 // require: true
             },
-            longitude:{
+            longitude: {
                 type: String,
                 // require: true,
             },
-            latitude:{
+            latitude: {
                 type: String,
                 // require: true,
             },
-            radius:{
+            radius: {
                 type: Number,
                 // require: true, 
             }

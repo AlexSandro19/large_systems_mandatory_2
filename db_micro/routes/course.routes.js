@@ -40,13 +40,13 @@ router.post("/getCourse", async (req, res) => {
             });
 
         }
-        const {coursesForStudent} = req.body; // an array should be received 
+        const { coursesForStudent } = req.body; // an array should be received 
         // (ex. {
         //     "coursesForStudent": ["62666c8732509c342d776af0", "626c641d971a4c7fd74ce2d4"]
         // })
 
         // console.log("req.body: ", req.body);
-        const allCourses = await  Promise.all(coursesForStudent.map( async (course_id) => {
+        const allCourses = await Promise.all(coursesForStudent.map(async (course_id) => {
             const course = await Course.findById(course_id);
             return course;
 

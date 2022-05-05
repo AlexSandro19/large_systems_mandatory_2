@@ -62,7 +62,7 @@ router.post("/createStudent", async (req, res) => {
         }
         console.log("inside student.routes.js > createStudent: ", req.body)
         const { student } = req.body
-        const createdStudent = new Student({ email:student.email, password: student.password });
+        const createdStudent = new Student({ email: student.email, password: student.password });
         console.log("created student: ", createdStudent)
         await createdStudent.save();
         console.log("inside student.routes.js > createStudent > createdStudent: ", createdStudent)

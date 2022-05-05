@@ -240,7 +240,7 @@ router.post(
                         errors: [{ value: email, msg: "Student not found", param: "email" }],
                     });
                 }
- 
+
                 return res.status(201).json({ message: "Student account created" });
             } else if (candidate) {
                 return res

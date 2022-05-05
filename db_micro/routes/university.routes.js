@@ -105,7 +105,7 @@ router.post("/checkStudentInUniveristy", async (req, res) => {
         allUniversities.forEach(university => {
             console.log("university.studentEmails: ", university.studentEmails)
             university.studentEmails.forEach(studentEmail => {
-                if (studentEmail === email){
+                if (studentEmail === email) {
                     isStundentInUniveristy = true;
                 }
             })
