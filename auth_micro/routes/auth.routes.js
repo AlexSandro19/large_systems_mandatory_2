@@ -227,26 +227,20 @@ router.post(
             console.log("candidate: ", candidate)
             console.log("isStundentInUniveristy: ", isStundentInUniveristy)
             if (!candidate && isStundentInUniveristy) {
-                const hashedPassword = await bcrypt.hash(password, 12);
-                const student = { email, password: hashedPassword };
-
-                const createdStudent = await axios
-                    .post(createStudentUrl, req.body)
+                const student = { email, password };
+                const { createdStudent } = await axios
+                    .post(createStudentUrl, { student })
                     .then((response) => response.data)
                     .catch((error) => {
                         throw error.response;
                     });
-                if (!student) {
+                if (!createdStudent) {
                     return res.status(400).json({
                         message: "Invalid authorization data",
                         errors: [{ value: email, msg: "Student not found", param: "email" }],
                     });
                 }
-                console.log("message after axios", student)
-
-                console.log("created student: ", student)
-                await student.save(); // SEND TO db_micro to save > /createStudent
-
+ 
                 return res.status(201).json({ message: "Student account created" });
             } else if (candidate) {
                 return res

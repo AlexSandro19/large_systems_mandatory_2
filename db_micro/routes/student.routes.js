@@ -60,15 +60,16 @@ router.post("/createStudent", async (req, res) => {
             });
 
         }
-        console.log("inside student.routes.js > saveStudent: ", req.body)
+        console.log("inside student.routes.js > createStudent: ", req.body)
         const { student } = req.body
-        console.log("inside student.routes.js > saveStudent > student: ", student.attendance)
-        const updatedStudent = await Student.findOneAndUpdate(student._id, student, { new: true })
-        console.log("updatedStudent: ", updatedStudent);
-        if (updatedStudent) {
-            return res.status(200).json({ studentUpdated: true });
-        }else {
-            return res.status(500).json({ studentUpdated: false });
+        const createdStudent = new Student({ email:student.email, password: student.password });
+        console.log("created student: ", createdStudent)
+        await createdStudent.save();
+        console.log("inside student.routes.js > createStudent > createdStudent: ", createdStudent)
+        if (createdStudent) {
+            return res.status(200).json({ createdStudent });
+        } else {
+            return res.status(500).json({ createdStudent }); // actually I dont know what sata type will be createdStudent if saving fails
         }
         // .then(function (err, doc) {
         //     if (err) {
@@ -104,7 +105,7 @@ router.post("/updateStudent", async (req, res) => {
         console.log("updatedStudent: ", updatedStudent);
         if (updatedStudent) {
             return res.status(200).json({ studentUpdated: true });
-        }else {
+        } else {
             return res.status(500).json({ studentUpdated: false });
         }
         // .then(function (err, doc) {
