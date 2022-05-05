@@ -10,12 +10,12 @@ app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 app.use(express.json())
 
-app.use("/auth", require("./routes/auth.routes"));
+app.use("", require("./routes/auth.routes"));
 
 app.get('/test', (req, res) => {
     res.status(200).send('all good from auth_micro');
 })
 
 app.listen(PORT, () =>
-    console.log(`App has been started on port ${PORT}...`)
+    console.log(`Authentification Microservice has been started on port ${PORT}...`)
 ); // add error handling 

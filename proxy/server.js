@@ -21,5 +21,5 @@ app.get('/test', (req, res) => {
 })
 
 app.listen(PORT, () =>
-    console.log(`App has been started on port ${PORT}...`)
+    console.log(`Proxy Microservice has been started on port ${PORT}...`)
 ); // add error handling 

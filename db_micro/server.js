@@ -11,10 +11,10 @@ app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 app.use(express.json())
 
-app.use("/db", require("./routes/course.routes"));
-app.use("/db", require("./routes/student.routes"));
-app.use("/db", require("./routes/teacher.routes"));
-app.use("/db", require("./routes/university.routes"));
+app.use("", require("./routes/course.routes")); // I dont like this, feels wrong
+app.use("", require("./routes/student.routes"));
+app.use("", require("./routes/teacher.routes"));
+app.use("", require("./routes/university.routes"));
 
 
 app.get('/test', (req, res) => {
@@ -29,7 +29,7 @@ async function start() {
         });
         console.log("Connected to Mongo");
         app.listen(PORT, () =>
-            console.log(`App has been started on port ${PORT}...`)
+            console.log(`Database Microservice has been started on port ${PORT}...`)
         );
     } catch (e) {
         console.log("Server Error", e.message);
