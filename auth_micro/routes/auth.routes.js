@@ -5,12 +5,11 @@ const bcrypt = require("bcrypt");
 const axios = require('axios').default;
 const { check, validationResult } = require("express-validator");
 
-const Student = require("../model/Student");
-
-const loginUrl = "http://localhost:5000/api/getStudent";
-const courseUrl = "http://localhost:5000/api/getCourse";
-const universityGeolocationsUrl = "http://localhost:5000/api/getUniversityGeolocations";
-const checkStudentInUniveristyUrl = "http://localhost:5000/api/checkStudentInUniveristy";
+const studentUrl = "http://localhost:5000/db/getStudent";
+const createStudentUrl = "http://localhost:5000/db/createStudent";
+const courseUrl = "http://localhost:5000/db/getCourse";
+const universityGeolocationsUrl = "http://localhost:5000/db/getUniversityGeolocations";
+const checkStudentInUniveristyUrl = "http://localhost:5000/db/checkStudentInUniveristy";
 
 const router = Router();
 
@@ -98,7 +97,7 @@ router.post(
             console.log(`email: ${email}; password: ${password}`)
             console.log(req.body);
             const student = await axios
-                .post(loginUrl, req.body)
+                .post(studentUrl, req.body)
                 .then((response) => response.data)
                 .catch((error) => {
                     throw error.response;
@@ -114,12 +113,12 @@ router.post(
             const isMatch = await bcrypt.compare(password, student.password);
 
             if (!isMatch) {
-              return res.status(400).json({
-                message: "Invalid authorization data",
-                errors: [
-                  { value: "", msg: "Wrong password, try again", param: "password" },
-                ],
-              });
+                return res.status(400).json({
+                    message: "Invalid authorization data",
+                    errors: [
+                        { value: "", msg: "Wrong password, try again", param: "password" },
+                    ],
+                });
             }
 
             //get all courses > lectures filter the lectures for the day
@@ -136,9 +135,11 @@ router.post(
                     throw error.response;
                 });
 
+
             if (studentCourses.length === 0) {
                 return res.status(500).json({ message: "Student doesn't have any courses" })
             }
+
             console.log("/login > studentCourses: ", studentCourses)
             console.log("/login > universityGeolocations: ", universityGeolocations)
 
@@ -152,7 +153,7 @@ router.post(
             studentCoursesWithGeolocation.forEach(course => {
                 console.log("course object: ", course)
                 const lecturesForSemester = course.lecturesForSemester.map(lecture => {
-                    return { ...lecture, course: course.courseName, geolocation: course.geolocation }
+                    return { ...lecture, courseName: course.courseName, courseId: course._id, geolocation: course.geolocation }
                 });
                 console.log("lecturesForSemester: ", lecturesForSemester)
                 const todaysLecturesForSpecificCourse = lecturesForSemester.filter(lecture => {
@@ -179,9 +180,9 @@ router.post(
 
 
             const token = jwt.sign({ email }, process.env.JWT_SECRET, {
-              expiresIn: 60000, // value in milliseconds
+                expiresIn: 60000, // value in milliseconds
             });
-            return res.json({ token, exp: token.expiresIn, todaysLectures});
+            return res.json({ token, exp: token.exp, todaysLectures });
 
             return res.status(200).json({ message: "all good in auth" })
         } catch (e) {
@@ -211,7 +212,7 @@ router.post(
             const { email, password } = req.body;
             console.log(`email: ${email}, password: ${password}`)
             const candidate = await axios
-                .post(loginUrl, req.body)
+                .post(studentUrl, req.body)
                 .then((response) => response.data)
                 .catch((error) => {
                     throw error.response;
@@ -225,23 +226,38 @@ router.post(
 
             console.log("candidate: ", candidate)
             console.log("isStundentInUniveristy: ", isStundentInUniveristy)
-            if (!candidate && isStundentInUniveristy){
+            if (!candidate && isStundentInUniveristy) {
                 const hashedPassword = await bcrypt.hash(password, 12);
-                const student = new Student({ email, password: hashedPassword });
+                const student = { email, password: hashedPassword };
+
+                const createdStudent = await axios
+                    .post(createStudentUrl, req.body)
+                    .then((response) => response.data)
+                    .catch((error) => {
+                        throw error.response;
+                    });
+                if (!student) {
+                    return res.status(400).json({
+                        message: "Invalid authorization data",
+                        errors: [{ value: email, msg: "Student not found", param: "email" }],
+                    });
+                }
+                console.log("message after axios", student)
+
                 console.log("created student: ", student)
-                await student.save();
-    
+                await student.save(); // SEND TO db_micro to save > /createStudent
+
                 return res.status(201).json({ message: "Student account created" });
-            }else if(candidate) {
+            } else if (candidate) {
                 return res
                     .status(400)
                     .json({ message: "Student with this email already exists" });
-            }else if(!isStundentInUniveristy){
+            } else if (!isStundentInUniveristy) {
                 return res
-                .status(400)
-                .json({ message: "This email doesn't belong to a student" });
+                    .status(400)
+                    .json({ message: "This email doesn't belong to a student" });
             }
-           
+
         } catch (error) {
             return res.status(500).json({ message: "Something went wrong", error: error.message });
         }
