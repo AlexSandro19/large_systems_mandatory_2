@@ -9,10 +9,12 @@ app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 
 app.use("/api/auth", require("./auth_micro/auth.routes"));
+app.use("/api/report", require("./report_micro/report.routes"));
 app.use("/api", require("./db_micro/course.routes"));
 app.use("/api", require("./db_micro/student.routes"));
 app.use("/api", require("./db_micro/teacher.routes"));
 app.use("/api", require("./db_micro/university.routes"));
+
 
 const PORT = process.env.PORT || 5000;
 
