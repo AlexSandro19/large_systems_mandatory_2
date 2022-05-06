@@ -18,19 +18,36 @@ const studentSchema = mongoose.Schema({
     ],
     attendance: [
         {
-            lectureForSemesterId:{
+            lectureForSemesterId: {
                 type: mongoose.Types.ObjectId,
+                // require: true
+            },
+            courseId: {
+                type: mongoose.Types.ObjectId,
+                ref: "Course",
+                // require: true
+            },
+            courseName: {
+                type: String,
+                // require: true
+            },
+            startDateAndTime: {
+                type: Date,
+                // require: true
+            },
+            endDateAndTime: {
+                type: Date,
                 // require: true
             },
             // week:{
             //     type: Number,
             //     // required: true,
             // },
-            presence:{
+            presence: {
                 type: String,
                 // require: true,
                 default: "Pending",
-                enum: ["Present", "Not Present","Pending"]
+                enum: ["Present", "Not Present", "Pending"]
             }
         }
     ]
