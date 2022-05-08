@@ -194,7 +194,7 @@ function formatDate(date) {
 function formatDateMoment(momentDate) {
   const date = new Date(momentDate);
 
-  return `${"*"} ${"*"} ${"*"} ${"*"} ${"*"} ${"*"}`;
+  return `${"00"} ${"00"} ${"*"} ${"*"} ${"*"} `;
   // or return moment(momentDate).format('ss mm HH DD MM dddd');
 }
 
