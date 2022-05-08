@@ -147,7 +147,8 @@ router.post(
                 const courseGeolocation = universityGeolocations.filter(geolocation => course.geolocationId === geolocation.geolocationId);
                 return { ...course, geolocation: courseGeolocation }
             })
-            const today = new Date("2022-04-24T22:08:30.000+00:00") // hard-coded date for testing purposes - to check if lectures will be 
+            const today = new Date() 
+            console.log("today: ", today)
             // filtered on a specific date
             const todaysLectures = []
             studentCoursesWithGeolocation.forEach(course => {
