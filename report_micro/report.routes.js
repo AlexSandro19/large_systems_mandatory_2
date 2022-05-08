@@ -178,7 +178,7 @@ router.get("/email",
 const todayMoment = moment().format();
 const today = new Date();
 console.log("today",today.toString())
-console.log("today",today)
+console.log("todayMoment",todayMoment)
 function formatDate(date) {
 /* take care of the values:
    second: 0-59 same for javascript
@@ -188,24 +188,27 @@ function formatDate(date) {
    month: 1-12 (or names) is not the same for javascript 0-11
    day of week: 0-7 (or names, 0 or 7 are sunday) same for javascript
    */
-  return `${date.getSeconds()} ${date.getMinutes() + 1} ${date.getHours()} ${date.getDate()} ${date.getMonth() + 1} ${date.getDay()}`;
+  return `${date.getSeconds() + 5} ${date.getMinutes() } ${date.getHours()} ${date.getDate()} ${date.getMonth() +1 } ${date.getDay()}`;
 }
 
 function formatDateMoment(momentDate) {
   const date = new Date(momentDate);
 
-  return `${date.getSeconds()} ${date.getMinutes() + 1} ${date.getHours()} ${date.getDate()} ${date.getMonth() + 1} ${date.getDay()}`;
+  return `${"*"} ${"*"} ${"*"} ${"*"} ${"*"} ${"*"}`;
   // or return moment(momentDate).format('ss mm HH DD MM dddd');
 }
 
-function runJob(data) {
+function runReportJob(data) {
   // or                     formatDateMoment
-  const job = cron.schedule(formatDate(data), () => {
-    doSomething();
-  });
+  const job = cron.schedule(formatDateMoment(data), () => {
+    console.log(formatDateMoment(data))
+    doSomething()
+    })
+  };
 
- async function doSomething() {
+  async function doSomething(){
     // my code
+    console.log(Date.now())
     await axios.get("http://localhost:5000/report/daily-report")
     .then(function (response) {
         // handle success
@@ -216,11 +219,24 @@ function runJob(data) {
         console.log(error);
       })
     // stop task or job
-    job.stop();
+    
   }
+
+function runJob(data){
+    const job0 = cron.schedule(formatDateMoment(data), () => {
+        date =  new Date()
+        if(`${date.getDay()}` === "0"){
+            
+            job.stop()
+        }else{
+            runReportJob(todayMoment)
+        }
+    })
+    
 }
+
 //    todayMoment
-runJob(today);
+runJob(todayMoment);
 
 
 
