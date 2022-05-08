@@ -14,6 +14,7 @@ app.use(express.json())
 app.use("/auth", proxy("http://localhost:5001"));
 app.use("/attendance", proxy("http://localhost:5002"));
 app.use("/db", proxy("http://localhost:5003"));
+app.use("/report", proxy("http://localhost:5004"));
 
 
 app.get('/test', (req, res) => {
