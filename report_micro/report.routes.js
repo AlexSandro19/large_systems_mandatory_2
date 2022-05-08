@@ -6,6 +6,7 @@ const axios = require('axios').default;
 const nodemailer = require("nodemailer");
 const cron = require('node-cron');
 const moment = require('moment');
+const generateCSV = require("./csvGenerator")
 
 const courseUrl = "http://localhost:5000/db/getCourses";
 const studentUrl = "http://localhost:5000/db/getStudents";
@@ -98,7 +99,7 @@ router.get("/daily-report",
 
       // console.log("teachersWithLecturesAndStudentsForToday",teachersWithLecturesAndStudentsForToday)
 
-      const teachersWithLecturesAndStudentsForToday = teachers.map(teacher => {
+      teachers.forEach(teacher => {
         console.log("inside teacher")
         const teacherCourses = teacher.coursesForTeacher.map(course => {
           console.log("inside course")
@@ -109,17 +110,17 @@ router.get("/daily-report",
               const lectureDate = new Date(lecture.startDateAndTime)
               return (today.getMonth() === lectureDate.getMonth() && today.getDate() === lectureDate.getDate())
             })
-            if (lecturesForToday.length > 0){
+            if (lecturesForToday.length > 0) {
               student.attendance = lecturesForToday
             }
             return student
           })
-          if (studentsInCourse.length > 0){
+          if (studentsInCourse.length > 0) {
             course.studentsInCourse = studentsInCourse
           }
           return course
         })
-        if (teacherCourses.length > 0){
+        if (teacherCourses.length > 0) {
           teacher.coursesForTeacher = teacherCourses
         }
         return teacher
@@ -151,33 +152,39 @@ router.get("/daily-report",
       // })
       // console.log("report for teacher", reportForTeachers)
       //call e-mail sender  
-      return res.json({ teachersWithLecturesAndStudentsForToday })
+      return res.json({ teachers })
 
     } catch (error) {
       console.log(error.message);
     }
   })
 
-router.get("/email",
-
-  async (req, res) => {
-    try {
-
+router.post("/email",
+async (req, res) => {
+  try {
+      const {teacher} = req.body;
+    console.log("teacher in email: ", teacher)
       const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
         port: 587,
         secure: false,
         auth: {
-          user: 'radu.cazacu1@gmail.com',
-          pass: ''
+          user: process.env.EMAIL,
+          pass: process.env.PASSWORD
         }
       });
       const mailOptions = {
-        from: 'radu.cazacu1@gmail.com',
+        from: process.env.EMAIL,
         to: "a.sandrovschii@gmail.com",
         replyTo: "radu.cazacu1@gmail.com",
         subject: "subject",
-        text: "Email sent from: " + "" + ' \n Name: ' + '\n Message: ' + ' ',
+        text: "Email sent from: " + "" + ' \n Name: ' + '\n Message: ' + 'Teacher email: ' + teacher.pathToFile,
+        attachments: [
+          {
+            filename: "attendance_report.csv",
+            path: `./${teacher.pathToFile}` 
+          },
+        ]
       };
       transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
@@ -197,24 +204,24 @@ router.get("/email",
 
 const todayMoment = moment().format();
 const today = new Date();
-console.log("today",today.toString())
-console.log("todayMoment",todayMoment)
+console.log("today", today.toString())
+console.log("todayMoment", todayMoment)
 function formatDate(date) {
-/* take care of the values:
-   second: 0-59 same for javascript
-   minute: 0-59 same for javascript
-   hour: 0-23 same for javascript
-   day of month: 1-31 same for javascript
-   month: 1-12 (or names) is not the same for javascript 0-11
-   day of week: 0-7 (or names, 0 or 7 are sunday) same for javascript
-   */
-  return `${date.getSeconds() + 5} ${date.getMinutes() } ${date.getHours()} ${date.getDate()} ${date.getMonth() +1 } ${date.getDay()}`;
+  /* take care of the values:
+     second: 0-59 same for javascript
+     minute: 0-59 same for javascript
+     hour: 0-23 same for javascript
+     day of month: 1-31 same for javascript
+     month: 1-12 (or names) is not the same for javascript 0-11
+     day of week: 0-7 (or names, 0 or 7 are sunday) same for javascript
+     */
+  return `${date.getSeconds() + 5} ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth() + 1} ${date.getDay()}`;
 }
 
 function formatDateMoment(momentDate) {
   const date = new Date(momentDate);
 
-  return `${"00"} ${"00"} ${"*"} ${"*"} ${"*"} `;
+  return `${"*"} ${"*"} ${"*"} ${"*"} ${"*"} `;
   // or return moment(momentDate).format('ss mm HH DD MM dddd');
 }
 
@@ -223,36 +230,43 @@ function runReportJob(data) {
   const job = cron.schedule(formatDateMoment(data), () => {
     console.log(formatDateMoment(data))
     doSomething()
-    })
-  };
+  })
+};
 
-  async function doSomething(){
-    // my code
-    console.log(Date.now())
-    await axios.get("http://localhost:5000/report/daily-report")
-      .then(function (response) {
-        // handle success
-        console.log(response);
-      })
+async function doSomething() {
+  // my code
+  console.log(Date.now())
+  const { teachers } = await axios.get("http://localhost:5000/report/daily-report")
+    .then((response) => response.data)
+    .catch(function (error) {
+      // handle error
+      console.log(error);
+    })
+    
+  const teachersWithGeneratedFile = await generateCSV(teachers);
+  setTimeout(() => {console.log("waited until files get generated")}, 10000);
+  console.log("teachersWithGeneratedFile: ",teachersWithGeneratedFile); 
+  teachersWithGeneratedFile.forEach( async teacher => {
+
+    const response = await axios.post("http://localhost:5000/report/email", {teacher})
+      .then((response) => response.data)
       .catch(function (error) {
         // handle error
-        console.log(error);
+        console.log("error with email:", error);
       })
-    // stop task or job
-    
-  }
+    console.log("response:", response);
+  })
+  // stop task or job
 
-function runJob(data){
-    const job0 = cron.schedule(formatDateMoment(data), () => {
-        date =  new Date()
-        if(`${date.getDay()}` === "0"){
-            
-            job.stop()
-        }else{
-            runReportJob(todayMoment)
-        }
-    })
-    
+}
+
+function runJob(data) {
+  const job0 = cron.schedule(formatDateMoment(data), () => {
+    date = new Date()
+    runReportJob(todayMoment)
+
+  })
+
 }
 
 //    todayMoment
