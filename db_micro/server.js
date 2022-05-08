@@ -9,20 +9,6 @@ const PORT = process.env.PORT || 5003;
 
 app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
-<<<<<<< HEAD:server.js
-
-app.use("/api/auth", require("./auth_micro/auth.routes"));
-app.use("/api/report", require("./report_micro/report.routes"));
-app.use("/api", require("./db_micro/course.routes"));
-app.use("/api", require("./db_micro/student.routes"));
-app.use("/api", require("./db_micro/teacher.routes"));
-app.use("/api", require("./db_micro/university.routes"));
-
-
-const PORT = process.env.PORT || 5000;
-
-=======
->>>>>>> 551934a341fb394db3c9d1c5e43d222619b18a46:db_micro/server.js
 app.use(express.json())
 
 app.use("", require("./routes/course.routes")); // I dont like this, feels wrong
