@@ -10,7 +10,7 @@ app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 app.use(express.json())
 
-app.use("/report", require("./report.routes"));
+app.use("", require("./report.routes"));
 
 app.get('/test', (req, res) => {
     res.status(200).send('all good from report_micro');
