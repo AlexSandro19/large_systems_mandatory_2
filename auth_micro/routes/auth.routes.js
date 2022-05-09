@@ -78,10 +78,10 @@ router.get("/test", async (req, res) => {
 
 router.post(
     "/login",
-    // [
-    //   check("email", "Enter valid email").normalizeEmail().isEmail(),
-    //   check("password", "Enter password").exists(),
-    // ],
+    [
+       //check("email", "Enter valid email").normalizeEmail().isEmail(),
+       //check("password", "Enter password").exists(),
+     ],
     async (req, res) => {
         try {
             const errors = validationResult(req);
@@ -94,6 +94,7 @@ router.post(
             }
 
             const { email, password } = req.body;
+            console.log(req.body);
             console.log(`email: ${email}; password: ${password}`)
             console.log(req.body);
             const student = await axios
@@ -147,8 +148,7 @@ router.post(
                 const courseGeolocation = universityGeolocations.filter(geolocation => course.geolocationId === geolocation.geolocationId);
                 return { ...course, geolocation: courseGeolocation }
             })
-            const today = new Date() 
-            console.log("today: ", today)
+            const today = new Date() // hard-coded date for testing purposes - to check if lectures will be 
             // filtered on a specific date
             const todaysLectures = []
             studentCoursesWithGeolocation.forEach(course => {
@@ -183,7 +183,7 @@ router.post(
             const token = jwt.sign({ email }, process.env.JWT_SECRET, {
                 expiresIn: 60000, // value in milliseconds
             });
-            return res.json({ token, exp: token.exp, todaysLectures });
+            return res.json({ token,email, exp: token.exp, todaysLectures });
 
             return res.status(200).json({ message: "all good in auth" })
         } catch (e) {
