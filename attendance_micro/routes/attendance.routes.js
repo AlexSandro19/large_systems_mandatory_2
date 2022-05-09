@@ -19,8 +19,8 @@ router.post("/addAttendance", async (req, res) => {
             });
 
         }
-
-        const token = req.headers.authorization.split(" ")[1]; // "Bearer TOKEN"
+        const { attendance,token } = req.body;
+        //const token = req.headers.authorization.split(" ")[1]; // "Bearer TOKEN"
         console.log("check token: ", token);
         if (!token) {
             return res.status(401).json({ message: "Unauthorized access" });
@@ -41,7 +41,7 @@ router.post("/addAttendance", async (req, res) => {
             });
         }
 
-        const { attendance } = req.body;
+        
         const { lectureForSemesterId, courseId, courseName, startDateAndTime, endDateAndTime, presence } = attendance
         console.log("req.body: ", req.body);
         // NOTE: token should be in headers -> so you need to create a function that would extract the token from header
@@ -87,8 +87,8 @@ router.post("/getAttendance", async (req, res) => {
             });
 
         }
-
-        const token = req.headers.authorization.split(" ")[1]; // "Bearer TOKEN"
+        const { startDate, finalDate,token } = req.body;
+        //const token = req.headers.random.split(" ")[1]; // "Bearer TOKEN"
         console.log("check token: ", token);
         if (!token) {
             return res.status(401).json({ message: "Unauthorized access" });
@@ -109,7 +109,7 @@ router.post("/getAttendance", async (req, res) => {
             });
         }
 
-        const { startDate, finalDate } = req.body;
+        console.log(student);
         const receivedStartDate = new Date(startDate)
         const receivedFinalDate = new Date(finalDate)
 
